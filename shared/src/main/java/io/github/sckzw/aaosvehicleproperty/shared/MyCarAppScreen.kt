@@ -20,7 +20,6 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
     private var carPropertyManager: CarPropertyManager? = null
     private val propertyValues = mutableMapOf<Int, String>()
 
-    // 1. 車両基本情報 (CAR_INFO)
     private val infoProperties = listOf(
         PropertyInfo("Make", VehiclePropertyIds.INFO_MAKE),
         PropertyInfo("Model", VehiclePropertyIds.INFO_MODEL),
@@ -42,7 +41,6 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
         PropertyInfo("ETC Card Status", VehiclePropertyIds.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS)
     )
 
-    // 2. 走行状態・パワートレイン
     private val dynamicProperties = listOf(
         PropertyInfo("Vehicle Speed", VehiclePropertyIds.PERF_VEHICLE_SPEED),
         PropertyInfo("Vehicle Speed Display", VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY),
@@ -54,16 +52,12 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
         PropertyInfo("EV Regen Level", VehiclePropertyIds.EV_BRAKE_REGENERATION_LEVEL),
         PropertyInfo("EV Stopping Mode", VehiclePropertyIds.EV_STOPPING_MODE),
         PropertyInfo("Engine RPM", VehiclePropertyIds.ENGINE_RPM),
-        // 3. アクセル・ブレーキ
         PropertyInfo("Accel Pedal %", VehiclePropertyIds.ACCELERATOR_PEDAL_COMPRESSION_PERCENTAGE),
         PropertyInfo("Brake Pedal %", VehiclePropertyIds.BRAKE_PEDAL_COMPRESSION_PERCENTAGE),
         PropertyInfo("Brake Fluid Low", VehiclePropertyIds.BRAKE_FLUID_LEVEL_LOW),
         PropertyInfo("Brake Pad Wear %", VehiclePropertyIds.BRAKE_PAD_WEAR_PERCENTAGE),
-        // 4. ステアリング
         PropertyInfo("Steering Angle", VehiclePropertyIds.PERF_STEERING_ANGLE),
-        // 5. タイヤ
         PropertyInfo("Tire Pressure", VehiclePropertyIds.TIRE_PRESSURE),
-        // 6. 燃料・EV・航続距離
         PropertyInfo("Fuel Level", VehiclePropertyIds.FUEL_LEVEL),
         PropertyInfo("Fuel Level Low", VehiclePropertyIds.FUEL_LEVEL_LOW),
         PropertyInfo("Range Remaining", VehiclePropertyIds.RANGE_REMAINING),
@@ -78,25 +72,18 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
         PropertyInfo("EV Port Connected", VehiclePropertyIds.EV_CHARGE_PORT_CONNECTED),
         PropertyInfo("EV Port Open", VehiclePropertyIds.EV_CHARGE_PORT_OPEN),
         PropertyInfo("Fuel Door Open", VehiclePropertyIds.FUEL_DOOR_OPEN),
-        // 7. 燃費・電費
         PropertyInfo("Inst Fuel Econ", VehiclePropertyIds.INSTANTANEOUS_FUEL_ECONOMY),
         PropertyInfo("Inst EV Efficiency", VehiclePropertyIds.INSTANTANEOUS_EV_EFFICIENCY),
-        // 8. 外部環境
         PropertyInfo("Outside Temp", VehiclePropertyIds.ENV_OUTSIDE_TEMPERATURE),
         PropertyInfo("Night Mode", VehiclePropertyIds.NIGHT_MODE),
-        // 10. ライト・ウインカー
         PropertyInfo("Turn Signal State", VehiclePropertyIds.TURN_SIGNAL_STATE),
         PropertyInfo("Turn Signal Switch", VehiclePropertyIds.TURN_SIGNAL_SWITCH),
-        // 11. ワイパー
         PropertyInfo("Wipers State", VehiclePropertyIds.WINDSHIELD_WIPERS_STATE),
         PropertyInfo("Wipers Switch", VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH),
-        // 12. ホーン
         PropertyInfo("Horn Engaged", VehiclePropertyIds.VEHICLE_HORN_ENGAGED),
-        // 13. 自動運転状態
         PropertyInfo("AD Level", VehiclePropertyIds.VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL)
     )
 
-    // 9. 表示単位
     private val unitProperties = listOf(
         PropertyInfo("Dist Units", VehiclePropertyIds.DISTANCE_DISPLAY_UNITS),
         PropertyInfo("Fuel Vol Units", VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS),
@@ -108,12 +95,10 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
 
     private val propertyCallback = object : CarPropertyManager.CarPropertyEventCallback {
         override fun onChangeEvent(value: CarPropertyValue<*>) {
-            propertyValues[value.propertyId] = value.value.toString()
+            propertyValues[value.propertyId] = formatPropertyValue(value.value)
             invalidate()
         }
-
-        override fun onErrorEvent(propertyId: Int, areaId: Int) {
-        }
+        override fun onErrorEvent(propertyId: Int, areaId: Int) {}
     }
 
     init {
@@ -121,28 +106,21 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
             car = Car.createCar(carContext)
             carPropertyManager = car?.getCarManager(Car.PROPERTY_SERVICE) as? CarPropertyManager
             
-            val allProps = infoProperties + dynamicProperties + unitProperties
-            allProps.forEach { prop ->
+            (infoProperties + dynamicProperties + unitProperties).forEach { prop ->
                 propertyValues[prop.id] = fetchPropertyValue(prop.id)
             }
-        } catch (e: Exception) {
-            // Handle connection error
-        }
+        } catch (e: Exception) {}
 
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {
                 dynamicProperties.forEach { prop ->
                     try {
                         carPropertyManager?.registerCallback(
-                            propertyCallback,
-                            prop.id,
-                            CarPropertyManager.SENSOR_RATE_NORMAL
+                            propertyCallback, prop.id, CarPropertyManager.SENSOR_RATE_NORMAL
                         )
-                    } catch (e: Exception) {
-                    }
+                    } catch (e: Exception) {}
                 }
             }
-
             override fun onStop(owner: LifecycleOwner) {
                 carPropertyManager?.unregisterCallback(propertyCallback)
             }
@@ -151,14 +129,11 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
 
     override fun onGetTemplate(): Template {
         val listBuilder = ItemList.Builder()
-        val allProperties = infoProperties + dynamicProperties + unitProperties
-
-        for (prop in allProperties) {
-            val value = propertyValues[prop.id] ?: "Loading..."
+        (infoProperties + dynamicProperties + unitProperties).forEach { prop ->
             listBuilder.addItem(
                 Row.Builder()
                     .setTitle(prop.name)
-                    .addText(value)
+                    .addText(propertyValues[prop.id] ?: "N/A")
                     .build()
             )
         }
@@ -166,23 +141,31 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
         return ListTemplate.Builder()
             .setSingleList(listBuilder.build())
             .setHeaderAction(Action.APP_ICON)
-            .setTitle("All Vehicle Properties")
+            .setTitle("Vehicle Properties")
             .build()
     }
 
     private fun fetchPropertyValue(propId: Int): String {
         return try {
-            // Check for area 0 (Global) or fallback to first available area if not global
-            val config = carPropertyManager?.getCarPropertyConfig(propId)
-            val areaIds = config?.areaIds
-            val areaId = if (areaIds?.contains(0) == true) 0 else areaIds?.getOrNull(0) ?: 0
-            
-            val value = carPropertyManager?.getProperty<Any>(propId, areaId)?.value
-            value?.toString() ?: "N/A"
+            val config = carPropertyManager?.getCarPropertyConfig(propId) ?: return "N/A"
+            val areaId = if (config.areaIds.contains(0)) 0 else config.areaIds.getOrNull(0) ?: 0
+            val propertyValue = carPropertyManager?.getProperty<Any>(propId, areaId)
+            formatPropertyValue(propertyValue?.value)
         } catch (e: SecurityException) {
             "Denied"
         } catch (e: Exception) {
             "N/A"
+        }
+    }
+
+    private fun formatPropertyValue(value: Any?): String {
+        if (value == null) return "N/A"
+        return when (value) {
+            is Array<*> -> value.joinToString(", ")
+            is IntArray -> value.joinToString(", ")
+            is FloatArray -> value.joinToString(", ")
+            is LongArray -> value.joinToString(", ")
+            else -> value.toString()
         }
     }
 
