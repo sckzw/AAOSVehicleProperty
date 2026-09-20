@@ -42,7 +42,7 @@ class GearStatusScreen(carContext: CarContext) : Screen(carContext) {
             gearProperties.forEach { propId ->
                 propertyValues[propId] = fetchPropertyIntValue(propId)
             }
-        } catch (e: Exception) {}
+        } catch (_: Exception) {}
 
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {
@@ -51,7 +51,7 @@ class GearStatusScreen(carContext: CarContext) : Screen(carContext) {
                         carPropertyManager?.registerCallback(
                             propertyCallback, propId, CarPropertyManager.SENSOR_RATE_NORMAL
                         )
-                    } catch (e: Exception) {}
+                    } catch (_: Exception) {}
                 }
             }
             override fun onStop(owner: LifecycleOwner) {
@@ -119,7 +119,7 @@ class GearStatusScreen(carContext: CarContext) : Screen(carContext) {
             val areaId = if (config.areaIds.contains(0)) 0 else config.areaIds.getOrNull(0) ?: 0
             val propertyValue = carPropertyManager?.getProperty<Int>(propId, areaId)
             propertyValue?.value ?: 0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             0
         }
     }

@@ -114,7 +114,7 @@ class VehiclePropertyProvider(private val context: Context) {
                 propertyValues[prop.id] = value
                 listener?.onPropertyUpdated(prop.id, prop.name, value)
             }
-        } catch (e: Exception) {}
+        } catch (_: Exception) {}
     }
 
     fun startTracking() {
@@ -123,14 +123,14 @@ class VehiclePropertyProvider(private val context: Context) {
                 carPropertyManager?.registerCallback(
                     propertyCallback, prop.id, CarPropertyManager.SENSOR_RATE_NORMAL
                 )
-            } catch (e: Exception) {}
+            } catch (_: Exception) {}
         }
     }
 
     fun stopTracking() {
         try {
             carPropertyManager?.unregisterCallback(propertyCallback)
-        } catch (e: Exception) {}
+        } catch (_: Exception) {}
     }
 
     fun getPropertyValue(propId: Int): String {
@@ -143,9 +143,9 @@ class VehiclePropertyProvider(private val context: Context) {
             val areaId = if (config.areaIds.contains(0)) 0 else config.areaIds.getOrNull(0) ?: 0
             val propertyValue = carPropertyManager?.getProperty<Any>(propId, areaId)
             formatPropertyValue(propertyValue?.value)
-        } catch (e: SecurityException) {
+        } catch (_: SecurityException) {
             "Denied"
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "N/A"
         }
     }
