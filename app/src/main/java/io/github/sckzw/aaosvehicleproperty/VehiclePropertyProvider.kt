@@ -74,7 +74,7 @@ class VehiclePropertyProvider(private val context: Context) {
         PropertyInfo("Inst EV Efficiency", VehiclePropertyIds.INSTANTANEOUS_EV_EFFICIENCY),
         PropertyInfo("Outside Temp", VehiclePropertyIds.ENV_OUTSIDE_TEMPERATURE),
         PropertyInfo("Night Mode", VehiclePropertyIds.NIGHT_MODE),
-        PropertyInfo("Turn Signal State", VehiclePropertyIds.TURN_SIGNAL_STATE),
+        PropertyInfo("Turn Signal Light State", VehiclePropertyIds.TURN_SIGNAL_LIGHT_STATE),
         PropertyInfo("Turn Signal Switch", VehiclePropertyIds.TURN_SIGNAL_SWITCH),
         PropertyInfo("Wipers State", VehiclePropertyIds.WINDSHIELD_WIPERS_STATE),
         PropertyInfo("Wipers Switch", VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH),
