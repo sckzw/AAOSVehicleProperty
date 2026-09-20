@@ -44,6 +44,7 @@
         <activity
             android:name="androidx.car.app.activity.CarAppActivity"
             android:exported="true"
+            android:label="@string/label_gear_status"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -58,6 +59,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:label="@string/label_vehicle_property_list"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

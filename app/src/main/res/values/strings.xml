@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AAOSVehicleProperty</string>
+    <string name="label_gear_status">Gear Status</string>
+    <string name="label_vehicle_property_list">Vehicle Property List</string>
 </resources>
