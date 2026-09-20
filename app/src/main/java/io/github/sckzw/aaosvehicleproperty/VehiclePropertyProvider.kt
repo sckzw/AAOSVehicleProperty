@@ -43,6 +43,7 @@ class VehiclePropertyProvider(private val context: Context) {
         PropertyInfo("Vehicle Speed", VehiclePropertyIds.PERF_VEHICLE_SPEED),
         PropertyInfo("Vehicle Speed Display", VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY),
         PropertyInfo("Wheel Tick", VehiclePropertyIds.WHEEL_TICK),
+        PropertyInfo("Ignition State", VehiclePropertyIds.IGNITION_STATE),
         PropertyInfo("Gear Selection", VehiclePropertyIds.GEAR_SELECTION),
         PropertyInfo("Current Gear", VehiclePropertyIds.CURRENT_GEAR),
         PropertyInfo("Parking Brake On", VehiclePropertyIds.PARKING_BRAKE_ON),
@@ -56,6 +57,7 @@ class VehiclePropertyProvider(private val context: Context) {
         PropertyInfo("Brake Pad Wear %", VehiclePropertyIds.BRAKE_PAD_WEAR_PERCENTAGE),
         PropertyInfo("Steering Angle", VehiclePropertyIds.PERF_STEERING_ANGLE),
         PropertyInfo("Tire Pressure", VehiclePropertyIds.TIRE_PRESSURE),
+        PropertyInfo("Seat Occupancy", VehiclePropertyIds.SEAT_OCCUPANCY),
         PropertyInfo("Fuel Level", VehiclePropertyIds.FUEL_LEVEL),
         PropertyInfo("Fuel Level Low", VehiclePropertyIds.FUEL_LEVEL_LOW),
         PropertyInfo("Range Remaining", VehiclePropertyIds.RANGE_REMAINING),
@@ -67,6 +69,7 @@ class VehiclePropertyProvider(private val context: Context) {
         PropertyInfo("EV Regen State", VehiclePropertyIds.EV_REGENERATIVE_BRAKING_STATE),
         PropertyInfo("EV Charge Limit", VehiclePropertyIds.EV_CHARGE_CURRENT_DRAW_LIMIT),
         PropertyInfo("EV Charge % Limit", VehiclePropertyIds.EV_CHARGE_PERCENT_LIMIT),
+        PropertyInfo("EV Charge Time Rem", VehiclePropertyIds.EV_CHARGE_TIME_REMAINING),
         PropertyInfo("EV Port Connected", VehiclePropertyIds.EV_CHARGE_PORT_CONNECTED),
         PropertyInfo("EV Port Open", VehiclePropertyIds.EV_CHARGE_PORT_OPEN),
         PropertyInfo("Fuel Door Open", VehiclePropertyIds.FUEL_DOOR_OPEN),
@@ -77,7 +80,6 @@ class VehiclePropertyProvider(private val context: Context) {
         PropertyInfo("Turn Signal Light State", VehiclePropertyIds.TURN_SIGNAL_LIGHT_STATE),
         PropertyInfo("Turn Signal Switch", VehiclePropertyIds.TURN_SIGNAL_SWITCH),
         PropertyInfo("Wipers State", VehiclePropertyIds.WINDSHIELD_WIPERS_STATE),
-        PropertyInfo("Wipers Switch", VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH),
         PropertyInfo("Horn Engaged", VehiclePropertyIds.VEHICLE_HORN_ENGAGED),
         PropertyInfo("AD Level", VehiclePropertyIds.VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL)
     )
@@ -88,6 +90,7 @@ class VehiclePropertyProvider(private val context: Context) {
         PropertyInfo("Tire Press Units", VehiclePropertyIds.TIRE_PRESSURE_DISPLAY_UNITS),
         PropertyInfo("Speed Units", VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS),
         PropertyInfo("EV Batt Units", VehiclePropertyIds.EV_BATTERY_DISPLAY_UNITS),
+        PropertyInfo("HVAC Temp Units", VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS),
         PropertyInfo("Fuel Cons Units", VehiclePropertyIds.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME)
     )
 
