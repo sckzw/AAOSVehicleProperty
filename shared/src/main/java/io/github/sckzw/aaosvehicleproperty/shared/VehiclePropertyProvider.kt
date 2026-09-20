@@ -4,23 +4,21 @@ import android.car.Car
 import android.car.VehiclePropertyIds
 import android.car.hardware.CarPropertyValue
 import android.car.hardware.property.CarPropertyManager
-import androidx.car.app.CarContext
-import androidx.car.app.Screen
-import androidx.car.app.model.Action
-import androidx.car.app.model.ItemList
-import androidx.car.app.model.ListTemplate
-import androidx.car.app.model.Row
-import androidx.car.app.model.Template
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import android.content.Context
 import java.lang.Exception
 
-class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
+class VehiclePropertyProvider(private val context: Context) {
+
+    interface PropertyListener {
+        fun onPropertyUpdated(id: Int, name: String, value: String)
+    }
+
     private var car: Car? = null
     private var carPropertyManager: CarPropertyManager? = null
     private val propertyValues = mutableMapOf<Int, String>()
+    private var listener: PropertyListener? = null
 
-    private val infoProperties = listOf(
+    val infoProperties = listOf(
         PropertyInfo("Make", VehiclePropertyIds.INFO_MAKE),
         PropertyInfo("Model", VehiclePropertyIds.INFO_MODEL),
         PropertyInfo("Model Year", VehiclePropertyIds.INFO_MODEL_YEAR),
@@ -41,7 +39,7 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
         PropertyInfo("ETC Card Status", VehiclePropertyIds.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS)
     )
 
-    private val dynamicProperties = listOf(
+    val dynamicProperties = listOf(
         PropertyInfo("Vehicle Speed", VehiclePropertyIds.PERF_VEHICLE_SPEED),
         PropertyInfo("Vehicle Speed Display", VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY),
         PropertyInfo("Wheel Tick", VehiclePropertyIds.WHEEL_TICK),
@@ -84,7 +82,7 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
         PropertyInfo("AD Level", VehiclePropertyIds.VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL)
     )
 
-    private val unitProperties = listOf(
+    val unitProperties = listOf(
         PropertyInfo("Dist Units", VehiclePropertyIds.DISTANCE_DISPLAY_UNITS),
         PropertyInfo("Fuel Vol Units", VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS),
         PropertyInfo("Tire Press Units", VehiclePropertyIds.TIRE_PRESSURE_DISPLAY_UNITS),
@@ -93,56 +91,50 @@ class MyCarAppScreen(carContext: CarContext) : Screen(carContext) {
         PropertyInfo("Fuel Cons Units", VehiclePropertyIds.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME)
     )
 
+    val allProperties = infoProperties + dynamicProperties + unitProperties
+
     private val propertyCallback = object : CarPropertyManager.CarPropertyEventCallback {
         override fun onChangeEvent(value: CarPropertyValue<*>) {
-            propertyValues[value.propertyId] = formatPropertyValue(value.value)
-            invalidate()
+            val formatted = formatPropertyValue(value.value)
+            propertyValues[value.propertyId] = formatted
+            val propName = allProperties.find { it.id == value.propertyId }?.name ?: "Unknown"
+            listener?.onPropertyUpdated(value.propertyId, propName, formatted)
         }
         override fun onErrorEvent(propertyId: Int, areaId: Int) {}
     }
 
-    init {
+    fun init(propertyListener: PropertyListener) {
+        this.listener = propertyListener
         try {
-            car = Car.createCar(carContext)
+            car = Car.createCar(context)
             carPropertyManager = car?.getCarManager(Car.PROPERTY_SERVICE) as? CarPropertyManager
             
-            (infoProperties + dynamicProperties + unitProperties).forEach { prop ->
-                propertyValues[prop.id] = fetchPropertyValue(prop.id)
+            allProperties.forEach { prop ->
+                val value = fetchPropertyValue(prop.id)
+                propertyValues[prop.id] = value
+                listener?.onPropertyUpdated(prop.id, prop.name, value)
             }
         } catch (e: Exception) {}
-
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) {
-                dynamicProperties.forEach { prop ->
-                    try {
-                        carPropertyManager?.registerCallback(
-                            propertyCallback, prop.id, CarPropertyManager.SENSOR_RATE_NORMAL
-                        )
-                    } catch (e: Exception) {}
-                }
-            }
-            override fun onStop(owner: LifecycleOwner) {
-                carPropertyManager?.unregisterCallback(propertyCallback)
-            }
-        })
     }
 
-    override fun onGetTemplate(): Template {
-        val listBuilder = ItemList.Builder()
-        (infoProperties + dynamicProperties + unitProperties).forEach { prop ->
-            listBuilder.addItem(
-                Row.Builder()
-                    .setTitle(prop.name)
-                    .addText(propertyValues[prop.id] ?: "N/A")
-                    .build()
-            )
+    fun startTracking() {
+        dynamicProperties.forEach { prop ->
+            try {
+                carPropertyManager?.registerCallback(
+                    propertyCallback, prop.id, CarPropertyManager.SENSOR_RATE_NORMAL
+                )
+            } catch (e: Exception) {}
         }
+    }
 
-        return ListTemplate.Builder()
-            .setSingleList(listBuilder.build())
-            .setHeaderAction(Action.APP_ICON)
-            .setTitle("Vehicle Properties")
-            .build()
+    fun stopTracking() {
+        try {
+            carPropertyManager?.unregisterCallback(propertyCallback)
+        } catch (e: Exception) {}
+    }
+
+    fun getPropertyValue(propId: Int): String {
+        return propertyValues[propId] ?: "N/A"
     }
 
     private fun fetchPropertyValue(propId: Int): String {
