@@ -1,4 +1,4 @@
-package io.github.sckzw.aaosvehicleproperty.shared
+package io.github.sckzw.aaosvehicleproperty
 
 import android.car.Car
 import android.car.VehiclePropertyIds

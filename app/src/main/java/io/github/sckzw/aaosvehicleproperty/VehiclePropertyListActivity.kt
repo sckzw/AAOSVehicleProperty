@@ -11,9 +11,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import io.github.sckzw.aaosvehicleproperty.shared.VehiclePropertyProvider
 
-class MainActivity : ComponentActivity() {
+class VehiclePropertyListActivity : ComponentActivity() {
     private lateinit var provider: VehiclePropertyProvider
     private val propertyValues = mutableMapOf<Int, String>()
     private val propertyList = mutableListOf<VehiclePropertyProvider.PropertyInfo>()
